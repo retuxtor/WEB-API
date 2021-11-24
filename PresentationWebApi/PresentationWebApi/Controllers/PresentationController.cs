@@ -39,15 +39,25 @@ namespace PresentationWebApi.Controllers
         [HttpGet("GetByDate")]
         public IEnumerable<Presentation> GetByDate(DateTime dateFrom, DateTime dateTo)
         {
-            return _context.Presentation.Where(p => p.Time >= dateFrom && p.Time <= dateTo).ToList();
+            return _context.Presentation.Where(p => p.Time >= dateFrom && p.Time <= dateTo);
+        }
+        
+        [HttpPut("CheckStatus")]
+        public StatusCodeResult CheckStatus()
+        {
+            var closeList = _context.Presentation.Where(p => p.Time < DateTime.Now).ToList();
+            closeList.ForEach(p => p.Status = Presentation.StatusPresentation.Close);
+            
+            _context.SaveChanges();
+
+            return Ok( );
         }
 
-        [HttpPut("CheckStatus")]
-        public void CheckStatus()
+        [HttpPost("AddField")]
+        public StatusCodeResult AddField(Presentation presentation)
         {
-            var t = _context.Presentation.Where(p => p.Time > DateTime.Now).ToList();
-            t.ForEach(p => p.Status = Presentation.StatusPresentation.Close);
-            _context.SaveChanges();
+            _context.Presentation.Add(presentation);
+            return Ok( );
         }
     }
 }
