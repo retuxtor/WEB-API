@@ -11,7 +11,7 @@ namespace PresentationService.Models
         public DateTime Time { get; set; }
         public StatusPresentation Status { get; set; }
         public string Description { get; set; }
-        public int Visitorsid { get; set; }
+        public int QantityVisitors { get; set; }
 
         public enum StatusPresentation
         {

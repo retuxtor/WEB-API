@@ -30,8 +30,8 @@ namespace PresentationService.Models
                 p.Property(e => e.Description)
                     .HasColumnName("description");
 
-                p.Property(e => e.Visitorsid)
-                    .HasColumnName("visitorsid");
+                p.Property(e => e.QantityVisitors)
+                    .HasColumnName("qantity_visitors");
             });
 
             //modelBuilder.Entity<Presentation>().ToTable("presentation");
