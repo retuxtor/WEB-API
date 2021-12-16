@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using PresentationService.Services.Interfaces;
 using PresentationService.Services.Implementations;
+using PresentationWebApi.Services.Interface;
+using PresentationWebApi.Services.Implementations;
 
 namespace PresentationWebApi
 {
@@ -25,7 +27,9 @@ namespace PresentationWebApi
 
             services.AddControllers();
             services.AddDbContext<PresentationContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("PgSqlConnection")));
-            services.AddSingleton<IWorkerWithDB, PresentationWorker>();
+
+            services.AddScoped<IPresentationWorker, PresentationWorker>();
+            services.AddScoped<IVisitorWorker, VisitorWorker>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PresentationWebApi", Version = "v1" });

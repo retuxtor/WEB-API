@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PresentationService.Models;
-using PresentationWebApi.Data;
-using System;
-using System.Collections.Generic;
+using PresentationWebApi.Services.Interface;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace PresentationWebApi.Controllers
 {
@@ -12,12 +9,33 @@ namespace PresentationWebApi.Controllers
     [Route("api/[controller]")]
     public class VisitorController : ControllerBase
     {
-        private readonly VisitorContext _context;
 
-        [HttpGet("GetAll")]
-        public IEnumerable<Visitor> GetAllVisitors()
+        private readonly IVisitorWorker _worker;
+
+        public VisitorController(IVisitorWorker worker)
         {
-            return _context.Visitor.ToList();
+            _worker = worker;
+        }
+
+
+        [HttpGet()]
+        public Visitors GetVisitor(int number)
+        {
+            return _worker.GetVisitor(number);
+        }
+
+        [HttpPost()]
+        public StatusCodeResult AddVisitor(Visitors visitor)
+        {
+            _worker.AddVisitor(visitor);
+            return Ok();
+        }
+
+        [HttpPut()]
+        public StatusCodeResult ChangeVisitor(Visitors visitor)
+        {
+            _worker.ChangeVisitor(visitor);
+            return Ok();
         }
 
     }

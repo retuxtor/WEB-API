@@ -13,67 +13,46 @@ namespace PresentationWebApi.Controllers
     [Route("api/[controller]")]
     public class PresentationController : ControllerBase
     {
-        private readonly ILogger _logger;
-        private readonly PresentationContext _context;
-        private readonly IWorkerWithDB _presentationWorker;
+        //private readonly ILogger _logger;
+        //private readonly PresentationContext _context;
+        private readonly IPresentationWorker _presentationWorker;
 
-        public PresentationController(ILogger<PresentationController> logger, PresentationContext context, IWorkerWithDB presentationWorker)
+        public PresentationController(IPresentationWorker presentationWorker)
         {
-            _logger = logger;
-            _context = context;
+            //_logger = logger;
+            //_context = context;
             _presentationWorker = presentationWorker;
         }
 
         [HttpGet("GetDefinedValue/{qauntity}")]
         public IEnumerable<Presentation> GetDefinedValue(int qauntity)
         {
-            return _context.Presentation.OrderBy(p => p.Id).Take(qauntity).ToList();
+            return _presentationWorker.GetListPresentation(qauntity);
         }
-
 
         [HttpGet("{id}")]
         public Presentation GetPresentation(int id)
         {
-            return _context.Presentation.Where(p => p.Id == id).FirstOrDefault();
+            return _presentationWorker.GetPresentation(id);
         }
 
-        /// <summary>
-        /// Получает все презентации в указанном промежутке дат.
-        /// </summary>
-        /// <param name="dateFrom">От данной даты</param>
-        /// <param name="dateTo">До сюда</param>
-        /// <returns></returns>
+
         [HttpGet("GetByDate")]
         public IEnumerable<Presentation> GetByDate(DateTime dateFrom, DateTime dateTo)
         {
-            return _context.Presentation.Where(p => p.Time >= dateFrom && p.Time <= dateTo);
+            return _presentationWorker.GetPresentationInDateInterval(dateFrom, dateTo);
         }
         
-        /// <summary>
-        /// Изменяет статус у событий, которые уже прошли
-        /// </summary>
-        /// <returns></returns>
         [HttpPut("RefreshStatus")]
         public StatusCodeResult CheckStatus()
         {
-            var closeList = _context.Presentation.Where(p => p.Time < DateTime.Now).ToList();
-            closeList.ForEach(p => p.Status = Presentation.StatusPresentation.Close);
-            
-            _context.SaveChanges();
-
-            return Ok( );
+            return _presentationWorker.UpdateStatus() == true ? Ok() : NoContent();
         }
 
-        /// <summary>
-        /// Создает новую презентацию
-        /// </summary>
-        /// <param name="presentation">Объект класса Presentation</param>
-        /// <returns></returns>
         [HttpPost("CreateNewPresentation")]
         public StatusCodeResult AddField(Presentation presentation)
         {
-            _context.Presentation.Add(presentation);
-            return Ok( );
+            return _presentationWorker.AddPresentation(presentation) == true ? Ok() : NoContent();
         }
     }
 }

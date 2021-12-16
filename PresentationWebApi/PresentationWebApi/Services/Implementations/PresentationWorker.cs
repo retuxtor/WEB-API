@@ -10,44 +10,44 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PresentationService.Services.Implementations
 {
-    public class PresentationWorker : IWorkerWithDB
+    public class PresentationWorker : IPresentationWorker
     {
-        public PresentationContext Context { get; set; }
-
-        public List<Presentation> GetAllFields(DateTime dateFrom, DateTime dateTo)
+        private readonly PresentationContext _context;
+        public PresentationWorker(PresentationContext context)
         {
-            return Context.Presentation.Where(c => c.Time > dateFrom && c.Time < dateTo).ToList();
+            _context = context;
         }
 
-
-        public async Task<Presentation> GetField(int id)
+        public IEnumerable<Presentation> GetListPresentation(int qauntity)
         {
-            var presentation = await Context.Presentation.FindAsync(id);
-
-            if(presentation == null)
-            {
-                //Че та предусмотреть
-            }
-
-            return presentation;
+            return _context.Presentation.OrderBy(p => p.Id).Take(qauntity).ToList();
         }
 
-        public async Task<int> ChangeField()
+        public Presentation GetPresentation(int idPresentation)
         {
-            return await Context.SaveChangesAsync();
+            return _context.Presentation.Where(p => p.Id == idPresentation).FirstOrDefault();
         }
 
-        public async Task<int> AddingField(Presentation presentation)
+        public IEnumerable<Presentation> GetPresentationInDateInterval(DateTime dateFrom, DateTime dateTo)
         {
-            Context.Presentation.Add(presentation);
-            return await Context.SaveChangesAsync();
+            return _context.Presentation.Where(p => p.Time >= dateFrom && p.Time <= dateTo);
         }
 
-        public async Task<int> DeleteField(int id)
+        public bool UpdateStatus()
         {
-            var presentation = await Context.Presentation.FindAsync(id);
-            Context.Presentation.Remove(presentation);
-            return await Context.SaveChangesAsync();
+            var closeList = _context.Presentation.Where(p => p.Time < DateTime.Now).ToList();
+            closeList.ForEach(p => p.Status = Presentation.StatusPresentation.Close);
+
+            _context.SaveChanges();
+
+            return true;
+        }
+
+        public bool AddPresentation(Presentation presentation)
+        {
+            _context.Presentation.Add(presentation);
+
+            return true;
         }
     }
 }

@@ -9,11 +9,14 @@ namespace PresentationService.Models
         }
 
         public DbSet<Presentation> Presentation { get; set; }
+        public DbSet<Visitors> Visitors { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Presentation>(p =>
             {
+                p.ToTable("presentation");
+
                 p.Property(e => e.Id)
                     .ValueGeneratedOnAdd()
                     .HasColumnName("id");
@@ -34,7 +37,29 @@ namespace PresentationService.Models
                     .HasColumnName("qantity_visitors");
             });
 
-            //modelBuilder.Entity<Presentation>().ToTable("presentation");
+            modelBuilder.Entity<Visitors>(p =>
+            {
+                p.ToTable("visitors");
+
+                p.Property(e => e.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("id");
+
+                p.Property(e => e.Name)
+                    .HasColumnName("name");
+
+                p.Property(e => e.DateOfBirth)
+                    .HasColumnName("dateofbirth");
+
+                p.Property(e => e.Gender)
+                    .HasColumnName("gender");
+
+                p.Property(e => e.PhoneNumber)
+                    .HasColumnName("phonenumber");
+
+                p.Property(e => e.Email)
+                    .HasColumnName("email");
+            });
         }
     }
 }
